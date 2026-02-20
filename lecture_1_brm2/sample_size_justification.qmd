@@ -1,0 +1,455 @@
+---
+title: "Sample size determination"
+author: Cristian Mesquida
+institute: "Eindhoven University of Technology"
+format: revealjs
+execute:
+  echo: true                
+  warning: false
+  message: false
+  code-overflow: wrap
+  code-line-numbers: false
+  code-copy: true
+  code-link: true
+incremental: false   
+embed-resources: true
+editor: visual
+---
+
+## Possible outcomes
+
+|   | **Detection (Positive Result)** | **Null Result (Negative Result)** |
+|----|----|----|
+| **Signal Present (H₁)** | **True Positive** <br>Correct detection | **False Negative** <br>Type II Error ($\beta$) |
+| **Signal Absent (H₀)** | **False Positive** <br>Type I Error ($\alpha$) | **True Negative** <br>Correct rejection |
+
+## Population vs. sample
+
+![](figures/population.png){fig-align="center"}
+
+## Population vs. sample
+
+-   If we could collect data from an entire population there would be no need to perform inferential statistics
+
+-   Most often is not possible to collect data from an entire population
+
+-   Hypothesis testing as a solution
+
+## How much data do I need?
+
+We can answer this question with an a priori power analysis
+
+## Statistical power
+
+-   Power can be defined as the probability of correctly detecting a true effect when it exists (1 − $\beta$)
+
+-   In frequentist statistics, it can be understood as the proportion of times we will obtain a significant result if the experiment is repeated many times.
+
+-   For example, if an experiment is repeated 100 times with 80% power, we expect to find a significant effect in approximately 80 out of those 100 studies.
+
+## Visualizing power in the long term
+
+-   Suppose we repeat the same study 1000 times with 80% power to detect a true effect size of 0.2.
+
+-   Out of these 1000 studies, about 800 (\~80%) would yield a significant *p*-value.
+
+![](figures/distribution.png){fig-align="center"}
+
+## Visualizing power in a single study
+
+![](figures/power.png)
+
+<https://rpsychologist.com/d3/nhst/>
+
+## Factors determining sample size
+
+-   Effect size of interest: The larger the true effect size (difference or association), the smaller the sample size.
+
+-   Increasing mean difference or reducing the standard devaition (SD) increases effect size
+
+    $$
+    d = \frac{\text{mean difference}}{\text{SD}}
+    $$
+
+-   Desired level of statistical power: A higher desired power requires a larger sample size
+
+-   $\alpha$: Lowering $\alpha$ reduces power
+
+## Factors determining sample size
+
+-   Study design (between-subject vs. within-subject designs):
+
+    -   **Within-subject designs** (repeated measures) tend to have more power than **between-subject designs** because they reduce variability by comparing subjects to themselves.
+
+-   Directional vs. non-directional tests:
+
+    -   **One-tailed (directional)** tests have more power to detect an effect in one direction but **cannot** detect effects in the opposite direction.
+
+    -   **Two-tailed (non-directional)** tests are more conservative and split alpha across two tails, reducing power slightly for a given effect in one direction.
+
+## Factors determining sample size
+
+-   Adding baseline covariates to an ANOVA model-resulting in an ANCOVA model-will generally increase power compared to an ANOVA model.
+
+-   ANCOVA adjusts for baseline differences between groups, reducing residual variance and thereby increasing the sensitivity to detect group differences
+
+## Factors determining sample size
+
+![](figures/ancova.png)
+
+## Why high statistical power is a desired property?
+
+-   Increases the probability of finding a true effect
+
+    -   Suppose we design a study with \< 50% power.
+
+    -   Not better than flipping a coin.
+
+## Why high statistical power is a desired property?
+
+-   If a study was designed with only **30% power**, a non-significant result is generally **not informative** because it could be due to:
+
+    -   There being **no true effect**, or the effect is **smaller than expected**
+
+    -   The study having **insufficient power** to detect the effect
+
+    In other words, low power means a non-significant result might simply reflect the study’s inability to detect existing effects rather than their absence.
+
+## Why high statistical power is a desired property?
+
+-   Studies designed with high power yield narrower 95% confidence intervals (CIs). This improves precision and reduces uncertainty around effect sizes.
+
+    ![](figures/width_ci.png){width="500"}
+
+# Type of power analysis
+
+## A priori power analysis
+
+-   Input: power, effect size, alpha level and test
+
+-   Output: sample size
+
+-   Answers the question: Given an effect size, what is the minimum sample size required to achieve the desired level of power?
+
+## Sensitivity analysis
+
+-   Input: power, sample size, alpha level and test
+
+-   Output: effect size
+
+-   Useful when sample size is fixed due to resource constraints. For example:
+
+    -   A researcher interested in studying a very small population (Olympic athletes)
+
+    -   Financial and time constraints
+
+-   It answers the question: Given my sample size, what is the smallest significant effect size that I can detect with adequate power?
+
+## Conducting a sensitivity analysis
+
+-   Hypothesis = Intervention A ≠ Intervention B
+
+-   Sample size = 200
+
+-   Desired level of power = 0.9
+
+-   Study design = between-subject
+
+```{r}
+#| code-overflow: wrap
+
+pwr::pwr.t.test(n = 100, sig.level = 0.05, power = 0.9, type = "two.sample", alternative = "two.sided")
+```
+
+## Post hoc power analysis
+
+-   Input: observed effect size, sample size, alpha level and test
+
+-   Output: observed power
+
+-   It is bad practice: it does not add any information beyond the reported *p* value, but it presents the same information in a different way. The *p* value observed is directly related to the observed power
+
+## Post hoc power analysis
+
+-   If the p value is non-significant (i.e., larger than 0.05) the observed power will be less than approximately 50% in a t test
+
+![](figures/posthoc.png)
+
+# Effect size justification
+
+## Smallest Effect Size of Interest
+
+-   The smallest effect size that is considered theoretically and practically interesting.
+
+-   Best justification
+
+## Expected effect size
+
+-   Previous study
+
+-   Meta-analysis
+
+-   Caveats: (1) inflated effect sizes due to publication bias and studies with underpowered designs and (2) researchers need to take into account the research context of the studies (PICOS: Population, intervention, Comparator, Outcome, Study design)
+
+## Distribution of effect sizes in a research area
+
+-   Cohen's *d* thresholds in psychology (*d* \< 0.2 (small), *d* \< 0.5 (medium), *d* \> 0.5 (large))
+
+-   Suppose you want to test the difference between two treatments on weight loss. Does it make sense to justify the expected difference based on Cohen's *d* psychologythresholds?
+
+-   It may ignore the research context (PICOS) of the study
+
+# A priori power analysis for simple designs
+
+## Pearson's correlation test
+
+-   Hypothesis: Condition A related to Condition B
+
+-   Pearson's correlation *r* = 0.4
+
+-   Study design = pre-post (within-subject)
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+res <- pwr::pwr.r.test(r = 0.4, sig.level = 0.05, power = 0.9, alternative = "two.sided")
+
+res$n
+```
+
+## Pearson's correlation test
+
+-   Hypothesis: Condition A positively related to Condition B
+
+-   Pearson's correlation *r* = 0.4
+
+-   Study design = pre-post (within-subject)
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+res <- pwr::pwr.r.test(r = 0.4, sig.level = 0.05, power = 0.9, alternative = "greater")
+
+res$n
+```
+
+## Two-sided paired *t*-test
+
+-   Hypothesis: Intervention A ≠ Intervention B
+
+-   Cohen's *d~rm~* = 0.2
+
+-   Study design = pre-post (within-subject)
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+res <- pwr::pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.9, type = "paired", alternative = "two.sided")
+
+res$n
+```
+
+## One-sided paired *t*-test
+
+-   Hypothesis: Intervention A \> Intervention B
+
+-   Cohen's *d~rm~* = 0.2
+
+-   Study design = pre-post (within-subject)
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+res <- pwr::pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.9, type = "paired", alternative = "greater")
+
+res$n
+```
+
+## Two-sided unpaired *t*-test
+
+-   Hypothesis: Intervention A ≠ Intervention B
+
+-   Cohen's *d~s~* = 0.2
+
+-   Study design = between subject
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+res <- pwr::pwr.t.test(d = 0.2, sig.level = 0.05, power = 0.9, type = "two.sample", alternative = "two.sided")
+
+res$n
+```
+
+## One-sided unpaired *t*-test
+
+-   Hypothesis: Intervention A \> Intervention B
+
+-   Cohen's *d~s~* = 0.2
+
+-   Study design = between subject
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+res <- pwr::pwr.t.test(d = 0.2, sig.level = 0.025, power = 0.9, type = "two.sample", alternative = "greater")
+
+res$n
+```
+
+# Power analysis for factorial designs
+
+-   Two or more groups/conditions
+
+-   `Superpower` package
+
+-   `Superpower:: ANOVA_exact()`: simulates an exact dataset (mu, sd, and r represent empirical, not population, parameters) from the design to calculate power
+
+-   `Superpower:: ANOVA_power()`: simulates a dataset (mu, sd, and *r* represent population paramters, mean and covariance matrix) from the design to calculate power. Similar results to `ANOVA_exact()`.
+
+## One-way between-subject ANOVA with two levels
+
+-   Hypothesis: Intervention A ≠ Intervention B
+
+-   Cohen's *d~s~* = 0.2
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+string <- "2b"   # one between-subject factor with two levels
+n <- 527         # sample size per condition
+mu <- c(24, 26)  # expected means per group
+sd <- 10         # expected standard deviation (sd)
+alpha <- 0.05    # alpha level
+labelnames <- c("intervention", "A", "B") 
+
+# A Cohen's d of 0.2 is calculated as follows = (26-24)/10
+
+design_result <- Superpower::ANOVA_design(design = string, n = n, mu = mu, sd = sd, labelnames = labelnames, plot = TRUE)
+```
+
+## One-way between-subject ANOVA with two levels
+
+```{r}
+result <- Superpower::ANOVA_exact(design_result,
+                                 alpha_level = alpha,
+                                 verbose = FALSE)
+
+result$pc_results
+```
+
+## A one-way between-subject ANOVA with two levels is equivalent to a unpaired t-test
+
+```{r}
+res <- pwr::pwr.t.test(n = 527, d = 0.2, sig.level = 0.05, type = "two.sample", alternative = "two.sided")
+
+res$n
+```
+
+## One-way within-subject ANOVA with two levels
+
+-   Hypothesis: Intervention A ≠ Intervention B
+
+-   Cohen's *d~rm~* = 0.2
+
+-   Desired level of power = 90%
+
+-   What is the required sample size?
+
+```{r}
+string <- "2w"   # one within-subject factor with two levels
+n <- 265         # sample size per condition
+mu <- c(24, 26)  # expected means per group
+sd <- 10         # expected standard deviation (sd)
+r <- 0.5         # correlation
+alpha <- 0.05    # alpha level
+labelnames <- c("intervention", "A", "B") 
+
+design_result <- Superpower::ANOVA_design(design = string, n = n, mu = mu, sd = sd, r = r, labelnames = labelnames, plot = TRUE)
+```
+
+```{r}
+result <- Superpower::ANOVA_exact(design_result,
+                                 alpha_level = alpha,
+                                 verbose = FALSE)
+
+result$main_results
+```
+
+## A one-way within-subject ANOVA with two levels is equivalent to a paired t-test
+
+```{r}
+res <- pwr::pwr.t.test(n = 265, d = 0.2, sig.level = 0.05, type = "one.sample", alternative = "two.sided")
+
+res$n
+```
+
+## Two-way mixed ANOVA
+
+-   H: Intervention A ≠ Intervention B
+
+-   One between-subject factor (Intervention A vs. Intervention B) and a within-subject factor (pre vs. post)
+
+-   Effect of interest is the interaction: Does the difference between pre vs. post in Intervention A differs from Intervention B?
+
+## Two-way mixed ANOVA
+
+```{r}
+string <- "2b*2w"        # two-way mixed factor with two levels
+n <- 317                 # sample size per condition
+mu <- c(26, 29, 25, 26)  # expected means per group
+sd <- 10                 # expected standard deviation (sd)
+r <- 0.7                 # correlation
+alpha <- 0.05            # alpha level
+labelnames <- c("intervention", "A", "B", "time", "Pre", "Post") 
+
+design_result <- Superpower::ANOVA_design(design = string, n = n, mu = mu, sd = sd, r = r, labelnames = labelnames, , plot = TRUE)
+```
+
+## Two-way mixed ANOVA
+
+```{r}
+result <- Superpower::ANOVA_exact(design_result, alpha_level = alpha, verbose = FALSE)
+
+result$main_results
+```
+
+## Using `ANOVA_power()`
+
+First step is the same as in `ANOVA_exact()`
+
+```{r}
+string <- "2b*2w"        # two-way mixed factor with two levels
+n <- 317                 # sample size per condition
+mu <- c(26, 29, 25, 26)  # expected means per group
+sd <- 10                 # expected standard deviation (sd)
+r <- 0.7                 # correlation
+alpha <- 0.05            # alpha level
+labelnames <- c("intervention", "A", "B", "time", "Pre", "Post")
+
+design_result <- Superpower::ANOVA_design(design = string, n = n, mu = mu, sd = sd, r = r, labelnames = labelnames, plot = TRUE)
+```
+
+## Using `ANOVA_power()`
+
+```{r}
+nsims <- 1000  # number of simulations
+
+result <- Superpower::ANOVA_power(design_result, alpha_level = alpha, nsims = nsims, verbose = FALSE)
+
+result$main_results
+```
