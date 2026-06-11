@@ -1,0 +1,235 @@
+---
+title: "Lecture: Power Analysis – Practice Exercises"
+format: html
+editor: visual
+---
+
+```{r message = FALSE}
+library(tidyverse)
+library(TOSTER)
+library(Superpower)
+library(emmeans)
+```
+
+Especially at the beginning, it is practically impossible to remember all functions and their arguments by heart. A useful approach is to use the package name followed by `::` (e.g., `Superpower::`), which will display the functions available in that package. Once you have identified the function you need, you can place a `?` in front of its name (e.g., `?function_name`). This will open the function's documentation, providing a description of its purpose, usage, and arguments.
+
+### Question 1: `TOSTER` package
+
+a\. You plan to conduct a study to determine whether the difference between two interventions is practically equivalent to zero using a two-independent-groups design. What total sample size is required to achieve 90% power, assuming equivalence bounds of ±5, a true mean difference of 4, and a common standard deviation of 5?
+
+```{r}
+
+```
+
+b\. Now conduct the same a priori power analysis as above but for a one-group paired design. What is the total required sample size?
+
+```{r}
+
+```
+
+c\. Now conduct the same a priori power analysis for a one-group paired design, but using asymmetric equivalence bounds. Specifically, set the lower equivalence bound to −1 and the upper equivalence bound to 5. What total sample size is required?
+
+```{r }
+
+```
+
+d\. Sometimes researchers rely on a published study to inform a subsequent study. For instance, they may use a previous study to select an effect size, or use its open data to estimate an effect size for an a priori power analysis.
+
+Suppose the dataset below has been shared by a study. It includes a categorical variable, **group**, and a numerical variable, **outcome**. Assume this corresponds to an intervention aimed at reducing the severity of depression (with lower scores indicating more severe depression).
+
+```{r}
+# For reeproducibility
+set.seed(10001)
+
+# Create categorical variable
+group <- rep(c("intervention", "control"), each = 50)
+
+# Create a numerical variable
+data <- data.frame(group,
+                   outcome = if_else(group == "intervention", 
+                                     rnorm(100, 10, 3),
+                                     rnorm(100, 12, 3)))
+```
+
+Compute the mean difference between the intervention and control groups, ensuring the difference is calculated in that order (intervention minus control). You may use either a tidyverse approach (e.g., using `group_by()` and `summarise()`) or a base R approach.
+
+```{r echo = FALSE, eval = FALSE}
+
+```
+
+e\. In the lecture on equivalence testing, we learned that a non-inferiority test can be performed by setting the upper equivalence bound to +∞+∞. A non-inferiority test is used to assess whether one intervention is not worse than a control by more than a specified margin. This idea can be extended to power analysis.
+
+Conduct a power analysis for a non-inferiority test using the previously computed mean difference. Assume a non-inferiority bound of −3, a common standard deviation of 4, and a two-independent-groups design. What total sample size is required?
+
+```{r}
+
+```
+
+#### Question 2: `Superpower` package
+
+a\. You plan a study that involves a within-subject (repeated-measures) design with a single factor at three levels: no-dose, medium-dose, and high-dose.
+
+Simulate data for a one-way repeated-measures ANOVA based on the following pattern of means:
+
+- no-dose: 10 ± 4
+
+- medium-dose: 12 ± 4
+
+- high-dose: 13 ± 4
+
+Assume a within-subject correlation of 0.5, an alpha level of 0.05 and a total sample size of 40 participants.
+
+```{r}
+
+```
+
+b\. Perform an exact power analysis. What is the achieved statistical power for the **no-dose versus medium-dose** comparison?
+
+```{r}
+
+```
+
+c\. Now you plan a study that involves a mixed-study design with one between-subject factor (dose) with two levels (no-dose and dose) and within-subject factor (time) with two levels (morning and afternoon).
+
+Simulate data for a two-way mixed ANOVA based on the following pattern of means:
+
+- no-dose and morning: 10 ± 4
+
+- no-dose and evening: 12 ± 4
+
+- dose and morning: 10 ± 4
+
+- dose and evening: 14 ± 4
+
+Assume a within-subject correlation of 0.5, an alpha level of 0.05 and a sample size of 50 participants per group.
+
+```{r}
+
+```
+
+d\. Perform a power analysis based on Monte Carlo simulations. Use 1,000 simulations and set the random seed to 1001 to ensure reproducibility of the results. What is the achieved statistical power for the **interaction effect**?
+
+```{r}
+
+```
+
+e\. What is the achieved statistical power for the **no dose evening vs dose evening** comparison?
+
+```{r}
+
+```
+
+#### Question 3: `Superpower` + `emmeans`
+
+a\. Using the same study design and simulated data as above, apply `ANOVA_exact()` and use `emmeans` to estimate the statistical power for the comparisonfor each pairwise comparison of dose levels within each time point.
+
+```{r}
+
+```
+
+b\. First simulate data for a one-way repeated-measures ANOVA based on the following pattern of means:
+
+- no-dose: 10 ± 4
+
+- small-dose: 12 ± 4
+
+- medium-dose: 14 ± 4
+
+- high-dose: 16 ± 4
+
+Assume a within-subject correlation of 0.5, an alpha level of 0.05 and a total sample size of 40 participants.
+
+Then use `ANOVA_exact()` and `emmeans` to estimate the statistical power for a linear increasing trend.
+
+```{r}
+
+```
+
+### Question 4: Simulation-based using the general linear model
+
+As explained in the lecture, we can use Monte Carlo simulation to perform a power analysis. This is done by estimating power as the proportion of significant p-values across repeated simulated datasets.
+
+A simulation-based power analysis follows the same general steps: - Simulate data based on the specified means and standard deviation - Fit the statistical model - Extract the p-value - Repeat the process many times and count how many p-values are smaller than $\alpha$
+
+The first step is to simulate the data. We will start from the dataset used in Question 1d and extend it by adding a third group to the `group` variable.
+
+```{r}
+# For reeproducibility
+set.seed(10001)
+
+# Create categorical variable
+group <- rep(c("intervention_A", "intervention_B", "control"), each = 50)
+
+# Create a numerical variable for each one of the three groups
+data <- data.frame(
+  group,
+  outcome = ifelse(group == "intervention_A",
+                   rnorm(50, 10, 3),
+                   ifelse(group == "intervention_B",
+                          rnorm(50, 12, 3),
+                          rnorm(50, 13, 3)))
+  )
+```
+
+The second step is to to fit a model. Create a model using `lm()` with `outcome` as outcome and `group` as a predictor.
+
+```{r}
+model <- lm(outcome ~ group, data)
+```
+
+The third step is to specify the pairwise comparison of interest. In this case, we are interested in comparing Intervention_A versus control. Recall that the sum of contrasts must be equal to 0.
+
+```{r}
+emm <- emmeans(model, ~ group)
+
+# Set contrast to compare intervention_A vs control
+cont <- contrast(emm,
+                 method = list("A vs control" = c(1, 0, -1)))
+```
+
+The final step is to combine the previous three steps into a simulation loop using `for (i in 1:number_of_simulations)` and count how many p-values are statistically significant across all simulations.
+
+```{r}
+set.seed(1001) # for the reproducibility of results
+nsims <- 1000 # number of simulations
+
+pvalues <- vector()
+
+for (i in 1:nsims) {
+
+  # Create categorical variable
+group <- rep(c("intervention_A", "intervention_B", "control"), each = 50)
+
+# Create a numerical variable for each one of the three groups
+data <- data.frame(
+  group,
+  outcome = ifelse(group == "intervention_A",
+                   rnorm(50, 10, 3),
+                   ifelse(group == "intervention_B",
+                          rnorm(50, 12, 3),
+                          rnorm(50, 13, 3)))
+  )
+
+ model <- lm(outcome ~ group, data)
+ 
+# Estimated marginal means
+  emm <- emmeans(model, ~ group)
+
+# Set contrast to compare intervention_A vs. control
+  cont <- contrast(emm,
+                   method = list("A vs control" =
+                                   c(1, 0, -1)))
+
+# Extract p-value
+pvalues[i] <- summary(cont)$p.value
+}
+
+# Count how many p-values are smaller than 0.05
+mean(pvalues < 0.05)
+```
+
+a.  Perform a simulation-based power analysis. You are encouraged to experiment by adding new groups, modifying means and standard deviations, adjusting sample sizes, and varying the set of contrasts. For example, you may compare Intervention_B vs Control, Intervention_A vs Intervention_B, or test a linear (increasing or decreasing) trend across groups. Exploring different scenarios is an effective way to build intuition for simulation-based power analysis.
+
+```{r}
+
+```
