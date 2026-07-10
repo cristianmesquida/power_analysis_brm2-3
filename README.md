@@ -2,7 +2,7 @@
 
 This repository contains the slides used for **Power Analysis I** and **Power Analysis II** lectures in Behavioral Research Methods (BRM 2 and BRM 3)
 
-The lecture slides are available at: [Power Analysis I and II]()
+The lecture slides are available at: [Power Analysis I and II](https://cristianmesquida.github.io/power_analysis_brm2-3/)
 # Repository structure
 
 ```text
