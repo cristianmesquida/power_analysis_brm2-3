@@ -18,7 +18,7 @@ editor: visual
 ## Possible outcomes
 
 |   | **Detection (Positive Result)** | **Null Result (Negative Result)** |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | **Effect Present (H₁)** | **True Positive** <br>Correct detection | **False Negative** <br>Type II Error ($\beta$) |
 | **Effect Absent (H₀)** | **False Positive** <br>Type I Error ($\alpha$) | **True Negative** <br>Correct rejection |
 
@@ -648,7 +648,7 @@ kable(result$pc_results) # select first two columns
 
 - A key rule is that contrast weights must sum to 0
 
-## Examples of contrast 
+## Examples of contrast
 
 | Contrast |   A |   B |   C |   D | Interpretation     |
 |----------|----:|----:|----:|----:|--------------------|

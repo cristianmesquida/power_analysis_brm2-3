@@ -17,7 +17,7 @@ Especially at the beginning, it is practically impossible to remember all functi
 
 a\. You plan to conduct a study to determine whether the difference between two interventions is practically equivalent to zero using a two-independent-groups design. What total sample size is required to achieve 90% power, assuming equivalence bounds of ±5, a true mean difference of 4, and a common standard deviation of 5?
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 res <- power_t_TOST(
   delta = 4, 
   sd = 5,
@@ -35,7 +35,7 @@ ceiling(res$n * 2)
 
 b\. Now conduct the same a priori power analysis as above but for a one-group paired design. What is the total required sample size?
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 res <- power_t_TOST(
   delta = 4, 
   sd = 5,
@@ -45,12 +45,12 @@ res <- power_t_TOST(
   alpha = 0.05
   )
 
-ceiling(res$n*2)
+ceiling(res$n)
 ```
 
 c\. Now conduct the same a priori power analysis for a one-group paired design, but using asymmetric equivalence bounds. Specifically, set the lower equivalence bound to −1 and the upper equivalence bound to 5. What total sample size is required?
 
-```{r echo = FALSE, eval=FALSE}
+```{r}
 res <- power_t_TOST(
   delta = 4, 
   sd = 5,
@@ -61,7 +61,7 @@ res <- power_t_TOST(
   alpha = 0.05
   )
 
-ceiling(res$n*2)
+ceiling(res$n)
 ```
 
 d\. Sometimes researchers rely on a published study to inform a subsequent study. For instance, they may use a previous study to select an effect size, or use its open data to estimate an effect size for an a priori power analysis.
@@ -86,7 +86,7 @@ data <- data.frame(
 
 Compute the mean difference between the intervention and control groups, ensuring the difference is calculated in that order (intervention minus control). You may use either a tidyverse approach (e.g., using `group_by()` and `summarise()`) or a base R approach.
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 # Tidyverse approach
 group_means <- data |> 
   group_by(group) |> 
@@ -96,13 +96,15 @@ mean_diff <- group_means[2, 2] - group_means[1, 2]
 
 # Base R approach
 mean_diff <- mean(data$outcome[data$group == "intervention"]) - mean(data$outcome[data$group == "control"])
+
+mean_diff
 ```
 
-e\. In the lecture on equivalence testing, we learned that a non-inferiority test can be performed by setting the upper equivalence bound to +∞+∞. A non-inferiority test is used to assess whether one intervention is not worse than a control by more than a specified margin. This idea can be extended to power analysis.
+e\. In the lecture on equivalence testing, we learned that a non-inferiority test can be performed by setting the upper equivalence bound to infinity (`Inf`). A non-inferiority test is used to assess whether one intervention is not worse than a control by more than a specified margin. This idea can be extended to power analysis.
 
 Conduct a power analysis for a non-inferiority test using the previously computed mean difference. Assume a non-inferiority bound of −3, a common standard deviation of 4, and a two-independent-groups design. What total sample size is required?
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 res <- power_t_TOST(
   delta = mean_diff[[1]], 
   sd = 4,
@@ -130,7 +132,7 @@ Simulate data for a one-way repeated-measures ANOVA based on the following patte
 
 Assume a within-subject correlation of 0.5, an alpha level of 0.05 and a total sample size of 40 participants.
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 design <- ANOVA_design(
   design = "3w",
   n = 40,
@@ -181,7 +183,7 @@ design <- ANOVA_design(
 
 d\. Perform a power analysis based on Monte Carlo simulations. Use 1,000 simulations and set the random seed to 1001 to ensure reproducibility of the results. What is the achieved statistical power for the **interaction effect**?
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 res <- ANOVA_power(
   design,
   alpha_level = 0.05,
@@ -194,13 +196,13 @@ res$main_results[3, ]
 
 e\. What is the achieved statistical power for the **no dose evening vs dose evening** comparison?
 
-```{r echo = FALSE, eval = FALSE}
+```{r}
 res$pc_results[5, ]
 ```
 
-#### Question 3: `Superpower`  + `emmeans`
+#### Question 3: `Superpower` + `emmeans`
 
-a\. Using the same study design and simulated data as above, apply `ANOVA_exact()` and use `emmeans` to estimate the statistical power for the comparisonfor each pairwise comparison of dose levels within each time point.
+a\. Using the same study design and simulated data as above, apply `ANOVA_exact()` and use `emmeans` to estimate the statistical power for the comparison for each pairwise comparison of dose levels within each time point.
 
 ```{r}
 res <- ANOVA_exact(
@@ -260,7 +262,15 @@ emmeans_power(linear_con)[1,c(1:2)]
 
 As explained in the lecture, we can use Monte Carlo simulation to perform a power analysis. This is done by estimating power as the proportion of significant p-values across repeated simulated datasets.
 
-A simulation-based power analysis follows the same general steps: - Simulate data based on the specified means and standard deviation - Fit the statistical model - Extract the p-value - Repeat the process many times and count how many p-values are smaller than $\alpha$
+A simulation-based power analysis follows the same general steps:
+
+- Simulate data based on the specified means and standard deviation
+
+- Fit the statistical model
+
+- Extract the p-value
+
+- Repeat the process many times and count how many p-values are smaller than $\alpha$
 
 The first step is to simulate the data. We will start from the dataset used in Question 1d and extend it by adding a third group to the `group` variable.
 
